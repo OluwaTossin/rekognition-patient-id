@@ -1,0 +1,14 @@
+cat > .gitignore <<'EOF'
+# Build artifacts & zips
+*.zip
+
+# Local invoke/test payloads & outputs
+*out*.json
+*event*.json
+*payload*.json
+*.b64
+
+# OS / editor
+.DS_Store
+.vscode/
+EOF
