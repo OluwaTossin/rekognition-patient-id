@@ -1,0 +1,110 @@
+name: Deploy Patient Identity System
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  COLLECTION_ID: cmc-patient-faces
+  TABLE_NAME: cmc_patients
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          
+      - name: Run linting
+        run: |
+          flake8 build-register/ build-identify/ --max-line-length=88 --extend-ignore=E203,W503
+          black --check build-register/ build-identify/
+          
+      - name: Run type checking
+        run: |
+          mypy build-register/register_patient.py --ignore-missing-imports
+          mypy build-identify/identify_patient.py --ignore-missing-imports
+          
+      - name: Run security scan
+        run: |
+          bandit -r build-register/ build-identify/ -f json -o bandit-report.json
+          safety check
+          
+      - name: Run unit tests
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Verify AWS credentials
+        run: |
+          aws sts get-caller-identity
+          
+      - name: Deploy infrastructure
+        run: |
+          chmod +x scripts/deploy.sh
+          ./scripts/deploy.sh
+          
+      - name: Run integration tests
+        run: |
+          # Wait for deployment to stabilize
+          sleep 30
+          
+          # Get API Gateway URL (this would need to be implemented)
+          # API_URL=$(aws apigateway get-rest-apis --query "items[?name=='patient-identity-api'].id" --output text)
+          # export API_URL="https://${API_URL}.execute-api.${AWS_REGION}.amazonaws.com/prod"
+          
+          # chmod +x scripts/test.sh
+          # ./scripts/test.sh
+          
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+          else
+            echo "❌ Deployment failed!"
+          fi

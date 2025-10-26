@@ -1,0 +1,30 @@
+# Development dependencies for Patient Identity Verification System
+
+# Core dependencies (these would typically be in requirements.txt)
+boto3>=1.26.0
+requests>=2.28.0
+
+# Development and testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+moto>=4.1.0  # AWS service mocking for tests
+black>=22.0.0  # Code formatting
+flake8>=5.0.0  # Linting
+mypy>=1.0.0  # Type checking
+pre-commit>=2.20.0  # Git hooks
+
+# Documentation
+mkdocs>=1.4.0
+mkdocs-material>=8.5.0
+
+# Local development
+python-dotenv>=0.19.0
+localstack>=1.4.0  # Local AWS stack for testing
+
+# Security scanning
+bandit>=1.7.0
+safety>=2.3.0
+
+# Performance testing
+locust>=2.14.0
