@@ -8,6 +8,9 @@ cat > .gitignore <<'EOF'
 *payload*.json
 *.b64
 
+# Development files
+ENHANCEMENT_SUMMARY.md
+
 # OS / editor
 .DS_Store
 .vscode/
