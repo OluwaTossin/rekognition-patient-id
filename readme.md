@@ -2,20 +2,30 @@
 
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://python.org/)
 [![AWS](https://img.shields.io/badge/AWS-Lambda-orange.svg)](https://aws.amazon.com/lambda/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A serverless healthcare solution that uses Amazon Rekognition for facial recognition to streamline patient check-in processes. Built with AWS Lambda, API Gateway, and DynamoDB.
 
 ## Table of Contents
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Reference](#api-reference)
-- [Contributing](#contributing)
-- [License](#license)
+- [Patient Identity Verification System](#patient-identity-verification-system)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Prerequisites](#prerequisites)
+    - [1-Minute Setup](#1-minute-setup)
+  - [Installation](#installation)
+    - [Step 1: Create AWS Resources](#step-1-create-aws-resources)
+    - [Step 2: Deploy Lambda Functions](#step-2-deploy-lambda-functions)
+  - [Usage](#usage)
+    - [Register a Patient](#register-a-patient)
+    - [Identify a Patient](#identify-a-patient)
+  - [API Reference](#api-reference)
+    - [Base URL](#base-url)
+    - [Register Patient](#register-patient)
+    - [Identify Patient](#identify-patient)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Overview
 
@@ -46,6 +56,9 @@ The system consists of two main workflows:
 2. Lambda searches faces in Rekognition collection
 3. Matched face_id retrieves patient data from DynamoDB
 4. Returns patient information with confidence score
+
+> Test images are not included in this repository. Supply your own images when
+> exercising the registration and identification workflows.
 
 ## Features
 
@@ -132,7 +145,7 @@ aws lambda create-function \
 ### Register a Patient
 ```bash
 # Convert image to base64
-IMG_B64=$(base64 -w 0 patient1.jpg)
+IMG_B64=$(base64 -w 0 sample-registration.jpg)
 
 # Register patient
 curl -X POST "https://your-api-url/patients/register" \
@@ -151,7 +164,7 @@ curl -X POST "https://your-api-url/patients/register" \
 ### Identify a Patient
 ```bash
 # Convert check-in image to base64
-IMG_B64=$(base64 -w 0 patient1_checkin.jpg)
+IMG_B64=$(base64 -w 0 sample-checkin.jpg)
 
 # Identify patient
 curl -X POST "https://your-api-url/patients/identify" \
@@ -223,4 +236,11 @@ https://your-api-id.execute-api.us-east-1.amazonaws.com/prod
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Copyright © 2025-2026 Oluwatosin Jegede. All rights reserved.
+
+This repository and its original contents are proprietary. No permission is
+granted to use, copy, modify, distribute, sublicense, or create derivative
+works from this software except under a separate written licence from the
+copyright owner.
+
+Third-party components remain subject to their respective licences.
